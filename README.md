@@ -2,6 +2,11 @@
 
 A full-stack, multi-branch Accounting, Payroll, Inventory and Financial Management System built with ASP.NET Core (.NET), React, and SQL Server, designed to handle end-to-end business operations for multi-company, multi-branch, multi-currency organizations.
 
+## Showcase
+
+- [Watch the screen walkthrough video](https://cdn.jsdelivr.net/gh/jamiruddindowlat1-coder/rony-international-accounting@main/showcase/Rony_Software_Screens_Video.mp4)
+- [View the project showcase PDF](https://cdn.jsdelivr.net/gh/jamiruddindowlat1-coder/rony-international-accounting@main/showcase/Rony_International_Accounts_Software.pdf)
+
 ## Overview
 
 RONY International Accounting is an enterprise-grade ERP/accounting platform covering 14 modules and 89+ entities, from core company setup and double-entry bookkeeping to payables, receivables, banking, fixed assets, inventory, payroll, budgeting, and financial reporting, with role-based security and full audit trails.
