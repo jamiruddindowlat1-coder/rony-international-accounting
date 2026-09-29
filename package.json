@@ -1,0 +1,18 @@
+{
+  "name": "rony-international-accounting-software",
+  "version": "1.0.0",
+  "description": "ASP.NET Core (.NET 10) Web API backend + React (Vite) frontend, generated directly from the database schema (92 entities across 14 modules: Core, Security, Accounting/GL, Dimensions, Tax, Payables, Receivables, Banking, Fixed Assets, Budgeting, Inventory, Payroll, Reporting, Notifications).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^4.0.379"
+  }
+}

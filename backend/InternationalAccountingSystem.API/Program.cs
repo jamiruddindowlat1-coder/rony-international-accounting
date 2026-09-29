@@ -1,0 +1,290 @@
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using InternationalAccountingSystem.API.Data;
+using InternationalAccountingSystem.API.Mappings;
+using InternationalAccountingSystem.API.Middleware;
+using InternationalAccountingSystem.API.Repositories.Generic;
+using InternationalAccountingSystem.API.Services.Generic;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// ---- Database ----
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ---- AutoMapper ----
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// ---- Generic repository/service (only used via the specific interfaces below,
+//      registered here so any code that asks for the open-generic type also resolves) ----
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+
+// ---- Per-entity repositories & services (one pair per table in the schema) ----
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.ICompanyRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.CompanyRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.ICompanyService, InternationalAccountingSystem.API.Services.Implementations.Core.CompanyService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.IBranchRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.BranchRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.IBranchService, InternationalAccountingSystem.API.Services.Implementations.Core.BranchService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.ICountryRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.CountryRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.ICountryService, InternationalAccountingSystem.API.Services.Implementations.Core.CountryService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.ICurrencyRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.CurrencyRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.ICurrencyService, InternationalAccountingSystem.API.Services.Implementations.Core.CurrencyService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.IExchangeRateRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.ExchangeRateRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.IExchangeRateService, InternationalAccountingSystem.API.Services.Implementations.Core.ExchangeRateService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.IFiscalYearRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.FiscalYearRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.IFiscalYearService, InternationalAccountingSystem.API.Services.Implementations.Core.FiscalYearService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.IAccountingPeriodRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.AccountingPeriodRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.IAccountingPeriodService, InternationalAccountingSystem.API.Services.Implementations.Core.AccountingPeriodService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.INumberSequenceRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.NumberSequenceRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.INumberSequenceService, InternationalAccountingSystem.API.Services.Implementations.Core.NumberSequenceService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.IAttachmentRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.AttachmentRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.IAttachmentService, InternationalAccountingSystem.API.Services.Implementations.Core.AttachmentService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Core.ISystemSettingRepository, InternationalAccountingSystem.API.Repositories.Implementations.Core.SystemSettingRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Core.ISystemSettingService, InternationalAccountingSystem.API.Services.Implementations.Core.SystemSettingService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IUserRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.UserRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IUserService, InternationalAccountingSystem.API.Services.Implementations.Security.UserService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IRoleRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.RoleRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IRoleService, InternationalAccountingSystem.API.Services.Implementations.Security.RoleService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IPermissionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.PermissionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IPermissionService, InternationalAccountingSystem.API.Services.Implementations.Security.PermissionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IRolePermissionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.RolePermissionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IRolePermissionService, InternationalAccountingSystem.API.Services.Implementations.Security.RolePermissionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IUserRoleRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.UserRoleRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IUserRoleService, InternationalAccountingSystem.API.Services.Implementations.Security.UserRoleService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IUserCompanyAccessRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.UserCompanyAccessRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IUserCompanyAccessService, InternationalAccountingSystem.API.Services.Implementations.Security.UserCompanyAccessService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IRefreshTokenRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.RefreshTokenRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IRefreshTokenService, InternationalAccountingSystem.API.Services.Implementations.Security.RefreshTokenService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.ILoginHistoryRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.LoginHistoryRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.ILoginHistoryService, InternationalAccountingSystem.API.Services.Implementations.Security.LoginHistoryService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IAuditLogRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.AuditLogRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IAuditLogService, InternationalAccountingSystem.API.Services.Implementations.Security.AuditLogService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IApprovalWorkflowRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.ApprovalWorkflowRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IApprovalWorkflowService, InternationalAccountingSystem.API.Services.Implementations.Security.ApprovalWorkflowService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IApprovalStepRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.ApprovalStepRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IApprovalStepService, InternationalAccountingSystem.API.Services.Implementations.Security.ApprovalStepService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IApprovalRequestRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.ApprovalRequestRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IApprovalRequestService, InternationalAccountingSystem.API.Services.Implementations.Security.ApprovalRequestService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Security.IApprovalActionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Security.ApprovalActionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Security.IApprovalActionService, InternationalAccountingSystem.API.Services.Implementations.Security.ApprovalActionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Accounting.IAccountTypeRepository, InternationalAccountingSystem.API.Repositories.Implementations.Accounting.AccountTypeRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Accounting.IAccountTypeService, InternationalAccountingSystem.API.Services.Implementations.Accounting.AccountTypeService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Accounting.IAccountGroupRepository, InternationalAccountingSystem.API.Repositories.Implementations.Accounting.AccountGroupRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Accounting.IAccountGroupService, InternationalAccountingSystem.API.Services.Implementations.Accounting.AccountGroupService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Accounting.IChartOfAccountRepository, InternationalAccountingSystem.API.Repositories.Implementations.Accounting.ChartOfAccountRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Accounting.IChartOfAccountService, InternationalAccountingSystem.API.Services.Implementations.Accounting.ChartOfAccountService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Accounting.IJournalEntryRepository, InternationalAccountingSystem.API.Repositories.Implementations.Accounting.JournalEntryRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Accounting.IJournalEntryService, InternationalAccountingSystem.API.Services.Implementations.Accounting.JournalEntryService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Accounting.IJournalEntryLineRepository, InternationalAccountingSystem.API.Repositories.Implementations.Accounting.JournalEntryLineRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Accounting.IJournalEntryLineService, InternationalAccountingSystem.API.Services.Implementations.Accounting.JournalEntryLineService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Accounting.IRecurringJournalTemplateRepository, InternationalAccountingSystem.API.Repositories.Implementations.Accounting.RecurringJournalTemplateRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Accounting.IRecurringJournalTemplateService, InternationalAccountingSystem.API.Services.Implementations.Accounting.RecurringJournalTemplateService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Dimensions.IDepartmentRepository, InternationalAccountingSystem.API.Repositories.Implementations.Dimensions.DepartmentRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Dimensions.IDepartmentService, InternationalAccountingSystem.API.Services.Implementations.Dimensions.DepartmentService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Dimensions.ICostCenterRepository, InternationalAccountingSystem.API.Repositories.Implementations.Dimensions.CostCenterRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Dimensions.ICostCenterService, InternationalAccountingSystem.API.Services.Implementations.Dimensions.CostCenterService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Dimensions.IProjectRepository, InternationalAccountingSystem.API.Repositories.Implementations.Dimensions.ProjectRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Dimensions.IProjectService, InternationalAccountingSystem.API.Services.Implementations.Dimensions.ProjectService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Tax.ITaxJurisdictionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Tax.TaxJurisdictionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Tax.ITaxJurisdictionService, InternationalAccountingSystem.API.Services.Implementations.Tax.TaxJurisdictionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Tax.ITaxTypeRepository, InternationalAccountingSystem.API.Repositories.Implementations.Tax.TaxTypeRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Tax.ITaxTypeService, InternationalAccountingSystem.API.Services.Implementations.Tax.TaxTypeService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Tax.ITaxCodeRepository, InternationalAccountingSystem.API.Repositories.Implementations.Tax.TaxCodeRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Tax.ITaxCodeService, InternationalAccountingSystem.API.Services.Implementations.Tax.TaxCodeService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Tax.ITaxTransactionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Tax.TaxTransactionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Tax.ITaxTransactionService, InternationalAccountingSystem.API.Services.Implementations.Tax.TaxTransactionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IVendorRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.VendorRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IVendorService, InternationalAccountingSystem.API.Services.Implementations.Payables.VendorService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IVendorContactRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.VendorContactRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IVendorContactService, InternationalAccountingSystem.API.Services.Implementations.Payables.VendorContactService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IVendorBankAccountRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.VendorBankAccountRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IVendorBankAccountService, InternationalAccountingSystem.API.Services.Implementations.Payables.VendorBankAccountService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IPurchaseOrderRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.PurchaseOrderRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IPurchaseOrderService, InternationalAccountingSystem.API.Services.Implementations.Payables.PurchaseOrderService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IPurchaseOrderLineRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.PurchaseOrderLineRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IPurchaseOrderLineService, InternationalAccountingSystem.API.Services.Implementations.Payables.PurchaseOrderLineService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IPurchaseInvoiceRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.PurchaseInvoiceRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IPurchaseInvoiceService, InternationalAccountingSystem.API.Services.Implementations.Payables.PurchaseInvoiceService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IPurchaseInvoiceLineRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.PurchaseInvoiceLineRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IPurchaseInvoiceLineService, InternationalAccountingSystem.API.Services.Implementations.Payables.PurchaseInvoiceLineService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IVendorPaymentRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.VendorPaymentRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IVendorPaymentService, InternationalAccountingSystem.API.Services.Implementations.Payables.VendorPaymentService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IVendorPaymentAllocationRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.VendorPaymentAllocationRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IVendorPaymentAllocationService, InternationalAccountingSystem.API.Services.Implementations.Payables.VendorPaymentAllocationService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IVendorCreditNoteRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.VendorCreditNoteRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IVendorCreditNoteService, InternationalAccountingSystem.API.Services.Implementations.Payables.VendorCreditNoteService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payables.IWithholdingTaxEntryRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payables.WithholdingTaxEntryRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payables.IWithholdingTaxEntryService, InternationalAccountingSystem.API.Services.Implementations.Payables.WithholdingTaxEntryService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ICustomerRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.CustomerRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ICustomerService, InternationalAccountingSystem.API.Services.Implementations.Receivables.CustomerService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ICustomerContactRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.CustomerContactRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ICustomerContactService, InternationalAccountingSystem.API.Services.Implementations.Receivables.CustomerContactService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ICustomerBankAccountRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.CustomerBankAccountRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ICustomerBankAccountService, InternationalAccountingSystem.API.Services.Implementations.Receivables.CustomerBankAccountService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ISalesOrderRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.SalesOrderRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ISalesOrderService, InternationalAccountingSystem.API.Services.Implementations.Receivables.SalesOrderService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ISalesOrderLineRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.SalesOrderLineRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ISalesOrderLineService, InternationalAccountingSystem.API.Services.Implementations.Receivables.SalesOrderLineService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ISalesInvoiceRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.SalesInvoiceRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ISalesInvoiceService, InternationalAccountingSystem.API.Services.Implementations.Receivables.SalesInvoiceService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ISalesInvoiceLineRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.SalesInvoiceLineRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ISalesInvoiceLineService, InternationalAccountingSystem.API.Services.Implementations.Receivables.SalesInvoiceLineService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ICustomerReceiptRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.CustomerReceiptRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ICustomerReceiptService, InternationalAccountingSystem.API.Services.Implementations.Receivables.CustomerReceiptService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ICustomerReceiptAllocationRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.CustomerReceiptAllocationRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ICustomerReceiptAllocationService, InternationalAccountingSystem.API.Services.Implementations.Receivables.CustomerReceiptAllocationService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.ICustomerCreditNoteRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.CustomerCreditNoteRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.ICustomerCreditNoteService, InternationalAccountingSystem.API.Services.Implementations.Receivables.CustomerCreditNoteService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Receivables.IBadDebtWriteOffRepository, InternationalAccountingSystem.API.Repositories.Implementations.Receivables.BadDebtWriteOffRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Receivables.IBadDebtWriteOffService, InternationalAccountingSystem.API.Services.Implementations.Receivables.BadDebtWriteOffService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Banking.IBankAccountRepository, InternationalAccountingSystem.API.Repositories.Implementations.Banking.BankAccountRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Banking.IBankAccountService, InternationalAccountingSystem.API.Services.Implementations.Banking.BankAccountService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Banking.IBankTransactionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Banking.BankTransactionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Banking.IBankTransactionService, InternationalAccountingSystem.API.Services.Implementations.Banking.BankTransactionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Banking.IBankStatementImportRepository, InternationalAccountingSystem.API.Repositories.Implementations.Banking.BankStatementImportRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Banking.IBankStatementImportService, InternationalAccountingSystem.API.Services.Implementations.Banking.BankStatementImportService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Banking.IBankReconciliationRepository, InternationalAccountingSystem.API.Repositories.Implementations.Banking.BankReconciliationRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Banking.IBankReconciliationService, InternationalAccountingSystem.API.Services.Implementations.Banking.BankReconciliationService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Banking.IChequeRegisterEntryRepository, InternationalAccountingSystem.API.Repositories.Implementations.Banking.ChequeRegisterEntryRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Banking.IChequeRegisterEntryService, InternationalAccountingSystem.API.Services.Implementations.Banking.ChequeRegisterEntryService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Banking.IPettyCashAccountRepository, InternationalAccountingSystem.API.Repositories.Implementations.Banking.PettyCashAccountRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Banking.IPettyCashAccountService, InternationalAccountingSystem.API.Services.Implementations.Banking.PettyCashAccountService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Banking.IPettyCashTransactionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Banking.PettyCashTransactionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Banking.IPettyCashTransactionService, InternationalAccountingSystem.API.Services.Implementations.Banking.PettyCashTransactionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.FixedAssets.IAssetCategoryRepository, InternationalAccountingSystem.API.Repositories.Implementations.FixedAssets.AssetCategoryRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.FixedAssets.IAssetCategoryService, InternationalAccountingSystem.API.Services.Implementations.FixedAssets.AssetCategoryService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.FixedAssets.IFixedAssetRepository, InternationalAccountingSystem.API.Repositories.Implementations.FixedAssets.FixedAssetRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.FixedAssets.IFixedAssetService, InternationalAccountingSystem.API.Services.Implementations.FixedAssets.FixedAssetService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.FixedAssets.IDepreciationScheduleRepository, InternationalAccountingSystem.API.Repositories.Implementations.FixedAssets.DepreciationScheduleRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.FixedAssets.IDepreciationScheduleService, InternationalAccountingSystem.API.Services.Implementations.FixedAssets.DepreciationScheduleService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.FixedAssets.IAssetDisposalRepository, InternationalAccountingSystem.API.Repositories.Implementations.FixedAssets.AssetDisposalRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.FixedAssets.IAssetDisposalService, InternationalAccountingSystem.API.Services.Implementations.FixedAssets.AssetDisposalService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.FixedAssets.IAssetTransferRepository, InternationalAccountingSystem.API.Repositories.Implementations.FixedAssets.AssetTransferRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.FixedAssets.IAssetTransferService, InternationalAccountingSystem.API.Services.Implementations.FixedAssets.AssetTransferService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.FixedAssets.IAssetMaintenanceLogRepository, InternationalAccountingSystem.API.Repositories.Implementations.FixedAssets.AssetMaintenanceLogRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.FixedAssets.IAssetMaintenanceLogService, InternationalAccountingSystem.API.Services.Implementations.FixedAssets.AssetMaintenanceLogService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Budgeting.IBudgetVersionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Budgeting.BudgetVersionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Budgeting.IBudgetVersionService, InternationalAccountingSystem.API.Services.Implementations.Budgeting.BudgetVersionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Budgeting.IBudgetLineRepository, InternationalAccountingSystem.API.Repositories.Implementations.Budgeting.BudgetLineRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Budgeting.IBudgetLineService, InternationalAccountingSystem.API.Services.Implementations.Budgeting.BudgetLineService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Inventory.IItemCategoryRepository, InternationalAccountingSystem.API.Repositories.Implementations.Inventory.ItemCategoryRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Inventory.IItemCategoryService, InternationalAccountingSystem.API.Services.Implementations.Inventory.ItemCategoryService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Inventory.IItemRepository, InternationalAccountingSystem.API.Repositories.Implementations.Inventory.ItemRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Inventory.IItemService, InternationalAccountingSystem.API.Services.Implementations.Inventory.ItemService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Inventory.IWarehouseRepository, InternationalAccountingSystem.API.Repositories.Implementations.Inventory.WarehouseRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Inventory.IWarehouseService, InternationalAccountingSystem.API.Services.Implementations.Inventory.WarehouseService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Inventory.IStockLevelRepository, InternationalAccountingSystem.API.Repositories.Implementations.Inventory.StockLevelRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Inventory.IStockLevelService, InternationalAccountingSystem.API.Services.Implementations.Inventory.StockLevelService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Inventory.IStockTransactionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Inventory.StockTransactionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Inventory.IStockTransactionService, InternationalAccountingSystem.API.Services.Implementations.Inventory.StockTransactionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Inventory.IStockValuationLayerRepository, InternationalAccountingSystem.API.Repositories.Implementations.Inventory.StockValuationLayerRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Inventory.IStockValuationLayerService, InternationalAccountingSystem.API.Services.Implementations.Inventory.StockValuationLayerService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payroll.IEmployeeRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payroll.EmployeeRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payroll.IEmployeeService, InternationalAccountingSystem.API.Services.Implementations.Payroll.EmployeeService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payroll.ISalaryComponentRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payroll.SalaryComponentRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payroll.ISalaryComponentService, InternationalAccountingSystem.API.Services.Implementations.Payroll.SalaryComponentService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payroll.IEmployeeSalaryStructureRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payroll.EmployeeSalaryStructureRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payroll.IEmployeeSalaryStructureService, InternationalAccountingSystem.API.Services.Implementations.Payroll.EmployeeSalaryStructureService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payroll.IPayrollRunRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payroll.PayrollRunRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payroll.IPayrollRunService, InternationalAccountingSystem.API.Services.Implementations.Payroll.PayrollRunService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payroll.IPayrollTransactionRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payroll.PayrollTransactionRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payroll.IPayrollTransactionService, InternationalAccountingSystem.API.Services.Implementations.Payroll.PayrollTransactionService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Payroll.IEmployeeLoanRepository, InternationalAccountingSystem.API.Repositories.Implementations.Payroll.EmployeeLoanRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Payroll.IEmployeeLoanService, InternationalAccountingSystem.API.Services.Implementations.Payroll.EmployeeLoanService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Reporting.IFinancialStatementTemplateRepository, InternationalAccountingSystem.API.Repositories.Implementations.Reporting.FinancialStatementTemplateRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Reporting.IFinancialStatementTemplateService, InternationalAccountingSystem.API.Services.Implementations.Reporting.FinancialStatementTemplateService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Reporting.IFinancialStatementLineRepository, InternationalAccountingSystem.API.Repositories.Implementations.Reporting.FinancialStatementLineRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Reporting.IFinancialStatementLineService, InternationalAccountingSystem.API.Services.Implementations.Reporting.FinancialStatementLineService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Reporting.IFinancialStatementLineAccountRepository, InternationalAccountingSystem.API.Repositories.Implementations.Reporting.FinancialStatementLineAccountRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Reporting.IFinancialStatementLineAccountService, InternationalAccountingSystem.API.Services.Implementations.Reporting.FinancialStatementLineAccountService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Reporting.IConsolidationMappingRepository, InternationalAccountingSystem.API.Repositories.Implementations.Reporting.ConsolidationMappingRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Reporting.IConsolidationMappingService, InternationalAccountingSystem.API.Services.Implementations.Reporting.ConsolidationMappingService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Notifications.INotificationRepository, InternationalAccountingSystem.API.Repositories.Implementations.Notifications.NotificationRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Notifications.INotificationService, InternationalAccountingSystem.API.Services.Implementations.Notifications.NotificationService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Notifications.IEmailQueueItemRepository, InternationalAccountingSystem.API.Repositories.Implementations.Notifications.EmailQueueItemRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Notifications.IEmailQueueItemService, InternationalAccountingSystem.API.Services.Implementations.Notifications.EmailQueueItemService>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Repositories.Interfaces.Notifications.ISmsQueueItemRepository, InternationalAccountingSystem.API.Repositories.Implementations.Notifications.SmsQueueItemRepository>();
+builder.Services.AddScoped<InternationalAccountingSystem.API.Services.Interfaces.Notifications.ISmsQueueItemService, InternationalAccountingSystem.API.Services.Implementations.Notifications.SmsQueueItemService>();
+
+// ---- Auth ----
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtSection["Key"] ?? "CHANGE_THIS_DEV_ONLY_SECRET_KEY_MIN_32_CHARS";
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSection["Issuer"],
+            ValidAudience = jwtSection["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+builder.Services.AddAuthorization();
+
+// ---- CORS (allow the React dev server) ----
+builder.Services.AddCors(options =>
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()));
+
+builder.Services.AddControllers(options => options.Filters.Add(new Microsoft.AspNetCore.Mvc.Authorization.AllowAnonymousFilter()));
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Description = "JWT token"
+    });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
+app.UseAuthentication();
+app.UseAuthorization();
+using (var scope = app.Services.CreateScope())
+{
+    var seedDb = scope.ServiceProvider.GetRequiredService<InternationalAccountingSystem.API.Data.ApplicationDbContext>();
+    InternationalAccountingSystem.API.SeedData.Run(seedDb);
+    InternationalAccountingSystem.API.SeedData2.Run(seedDb);
+}
+
+app.MapControllers();
+
+app.Run();
+

@@ -1,0 +1,103 @@
+using AutoMapper;
+
+namespace InternationalAccountingSystem.API.Mappings
+{
+    public class MappingProfile : Profile
+    {
+        public MappingProfile()
+        {
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.Company, InternationalAccountingSystem.API.Dtos.Core.CompanyDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.Branch, InternationalAccountingSystem.API.Dtos.Core.BranchDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.Country, InternationalAccountingSystem.API.Dtos.Core.CountryDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.Currency, InternationalAccountingSystem.API.Dtos.Core.CurrencyDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.ExchangeRate, InternationalAccountingSystem.API.Dtos.Core.ExchangeRateDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.FiscalYear, InternationalAccountingSystem.API.Dtos.Core.FiscalYearDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.AccountingPeriod, InternationalAccountingSystem.API.Dtos.Core.AccountingPeriodDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.NumberSequence, InternationalAccountingSystem.API.Dtos.Core.NumberSequenceDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.Attachment, InternationalAccountingSystem.API.Dtos.Core.AttachmentDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Core.SystemSetting, InternationalAccountingSystem.API.Dtos.Core.SystemSettingDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.User, InternationalAccountingSystem.API.Dtos.Security.UserDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.Role, InternationalAccountingSystem.API.Dtos.Security.RoleDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.Permission, InternationalAccountingSystem.API.Dtos.Security.PermissionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.RolePermission, InternationalAccountingSystem.API.Dtos.Security.RolePermissionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.UserRole, InternationalAccountingSystem.API.Dtos.Security.UserRoleDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.UserCompanyAccess, InternationalAccountingSystem.API.Dtos.Security.UserCompanyAccessDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.RefreshToken, InternationalAccountingSystem.API.Dtos.Security.RefreshTokenDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.LoginHistory, InternationalAccountingSystem.API.Dtos.Security.LoginHistoryDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.AuditLog, InternationalAccountingSystem.API.Dtos.Security.AuditLogDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.ApprovalWorkflow, InternationalAccountingSystem.API.Dtos.Security.ApprovalWorkflowDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.ApprovalStep, InternationalAccountingSystem.API.Dtos.Security.ApprovalStepDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.ApprovalRequest, InternationalAccountingSystem.API.Dtos.Security.ApprovalRequestDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Security.ApprovalAction, InternationalAccountingSystem.API.Dtos.Security.ApprovalActionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Accounting.AccountType, InternationalAccountingSystem.API.Dtos.Accounting.AccountTypeDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Accounting.AccountGroup, InternationalAccountingSystem.API.Dtos.Accounting.AccountGroupDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Accounting.ChartOfAccount, InternationalAccountingSystem.API.Dtos.Accounting.ChartOfAccountDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Accounting.JournalEntry, InternationalAccountingSystem.API.Dtos.Accounting.JournalEntryDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Accounting.JournalEntryLine, InternationalAccountingSystem.API.Dtos.Accounting.JournalEntryLineDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Accounting.RecurringJournalTemplate, InternationalAccountingSystem.API.Dtos.Accounting.RecurringJournalTemplateDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Dimensions.Department, InternationalAccountingSystem.API.Dtos.Dimensions.DepartmentDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Dimensions.CostCenter, InternationalAccountingSystem.API.Dtos.Dimensions.CostCenterDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Dimensions.Project, InternationalAccountingSystem.API.Dtos.Dimensions.ProjectDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Tax.TaxJurisdiction, InternationalAccountingSystem.API.Dtos.Tax.TaxJurisdictionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Tax.TaxType, InternationalAccountingSystem.API.Dtos.Tax.TaxTypeDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Tax.TaxCode, InternationalAccountingSystem.API.Dtos.Tax.TaxCodeDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Tax.TaxTransaction, InternationalAccountingSystem.API.Dtos.Tax.TaxTransactionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.Vendor, InternationalAccountingSystem.API.Dtos.Payables.VendorDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.VendorContact, InternationalAccountingSystem.API.Dtos.Payables.VendorContactDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.VendorBankAccount, InternationalAccountingSystem.API.Dtos.Payables.VendorBankAccountDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.PurchaseOrder, InternationalAccountingSystem.API.Dtos.Payables.PurchaseOrderDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.PurchaseOrderLine, InternationalAccountingSystem.API.Dtos.Payables.PurchaseOrderLineDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.PurchaseInvoice, InternationalAccountingSystem.API.Dtos.Payables.PurchaseInvoiceDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.PurchaseInvoiceLine, InternationalAccountingSystem.API.Dtos.Payables.PurchaseInvoiceLineDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.VendorPayment, InternationalAccountingSystem.API.Dtos.Payables.VendorPaymentDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.VendorPaymentAllocation, InternationalAccountingSystem.API.Dtos.Payables.VendorPaymentAllocationDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.VendorCreditNote, InternationalAccountingSystem.API.Dtos.Payables.VendorCreditNoteDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payables.WithholdingTaxEntry, InternationalAccountingSystem.API.Dtos.Payables.WithholdingTaxEntryDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.Customer, InternationalAccountingSystem.API.Dtos.Receivables.CustomerDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.CustomerContact, InternationalAccountingSystem.API.Dtos.Receivables.CustomerContactDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.CustomerBankAccount, InternationalAccountingSystem.API.Dtos.Receivables.CustomerBankAccountDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.SalesOrder, InternationalAccountingSystem.API.Dtos.Receivables.SalesOrderDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.SalesOrderLine, InternationalAccountingSystem.API.Dtos.Receivables.SalesOrderLineDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.SalesInvoice, InternationalAccountingSystem.API.Dtos.Receivables.SalesInvoiceDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.SalesInvoiceLine, InternationalAccountingSystem.API.Dtos.Receivables.SalesInvoiceLineDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.CustomerReceipt, InternationalAccountingSystem.API.Dtos.Receivables.CustomerReceiptDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.CustomerReceiptAllocation, InternationalAccountingSystem.API.Dtos.Receivables.CustomerReceiptAllocationDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.CustomerCreditNote, InternationalAccountingSystem.API.Dtos.Receivables.CustomerCreditNoteDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Receivables.BadDebtWriteOff, InternationalAccountingSystem.API.Dtos.Receivables.BadDebtWriteOffDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Banking.BankAccount, InternationalAccountingSystem.API.Dtos.Banking.BankAccountDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Banking.BankTransaction, InternationalAccountingSystem.API.Dtos.Banking.BankTransactionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Banking.BankStatementImport, InternationalAccountingSystem.API.Dtos.Banking.BankStatementImportDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Banking.BankReconciliation, InternationalAccountingSystem.API.Dtos.Banking.BankReconciliationDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Banking.ChequeRegisterEntry, InternationalAccountingSystem.API.Dtos.Banking.ChequeRegisterEntryDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Banking.PettyCashAccount, InternationalAccountingSystem.API.Dtos.Banking.PettyCashAccountDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Banking.PettyCashTransaction, InternationalAccountingSystem.API.Dtos.Banking.PettyCashTransactionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.FixedAssets.AssetCategory, InternationalAccountingSystem.API.Dtos.FixedAssets.AssetCategoryDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.FixedAssets.FixedAsset, InternationalAccountingSystem.API.Dtos.FixedAssets.FixedAssetDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.FixedAssets.DepreciationSchedule, InternationalAccountingSystem.API.Dtos.FixedAssets.DepreciationScheduleDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.FixedAssets.AssetDisposal, InternationalAccountingSystem.API.Dtos.FixedAssets.AssetDisposalDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.FixedAssets.AssetTransfer, InternationalAccountingSystem.API.Dtos.FixedAssets.AssetTransferDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.FixedAssets.AssetMaintenanceLog, InternationalAccountingSystem.API.Dtos.FixedAssets.AssetMaintenanceLogDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Budgeting.BudgetVersion, InternationalAccountingSystem.API.Dtos.Budgeting.BudgetVersionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Budgeting.BudgetLine, InternationalAccountingSystem.API.Dtos.Budgeting.BudgetLineDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Inventory.ItemCategory, InternationalAccountingSystem.API.Dtos.Inventory.ItemCategoryDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Inventory.Item, InternationalAccountingSystem.API.Dtos.Inventory.ItemDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Inventory.Warehouse, InternationalAccountingSystem.API.Dtos.Inventory.WarehouseDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Inventory.StockLevel, InternationalAccountingSystem.API.Dtos.Inventory.StockLevelDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Inventory.StockTransaction, InternationalAccountingSystem.API.Dtos.Inventory.StockTransactionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Inventory.StockValuationLayer, InternationalAccountingSystem.API.Dtos.Inventory.StockValuationLayerDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payroll.Employee, InternationalAccountingSystem.API.Dtos.Payroll.EmployeeDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payroll.SalaryComponent, InternationalAccountingSystem.API.Dtos.Payroll.SalaryComponentDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payroll.EmployeeSalaryStructure, InternationalAccountingSystem.API.Dtos.Payroll.EmployeeSalaryStructureDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payroll.PayrollRun, InternationalAccountingSystem.API.Dtos.Payroll.PayrollRunDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payroll.PayrollTransaction, InternationalAccountingSystem.API.Dtos.Payroll.PayrollTransactionDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Payroll.EmployeeLoan, InternationalAccountingSystem.API.Dtos.Payroll.EmployeeLoanDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Reporting.FinancialStatementTemplate, InternationalAccountingSystem.API.Dtos.Reporting.FinancialStatementTemplateDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Reporting.FinancialStatementLine, InternationalAccountingSystem.API.Dtos.Reporting.FinancialStatementLineDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Reporting.FinancialStatementLineAccount, InternationalAccountingSystem.API.Dtos.Reporting.FinancialStatementLineAccountDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Reporting.ConsolidationMapping, InternationalAccountingSystem.API.Dtos.Reporting.ConsolidationMappingDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Notifications.Notification, InternationalAccountingSystem.API.Dtos.Notifications.NotificationDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Notifications.EmailQueueItem, InternationalAccountingSystem.API.Dtos.Notifications.EmailQueueItemDto>().ReverseMap();
+            CreateMap<InternationalAccountingSystem.API.Entities.Notifications.SmsQueueItem, InternationalAccountingSystem.API.Dtos.Notifications.SmsQueueItemDto>().ReverseMap();
+        }
+    }
+}
